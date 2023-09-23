@@ -1,3 +1,11 @@
+
+src
+.gitignore
+package.json
+Readme.md
+tsconfig.json
+vite.config.js
+
 # Logs
 logs
 *.log
@@ -89,13 +97,7 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-assets
-src
-.gitignore
-package.json
-Readme.md
-tsconfig.json
-vite.config.js
+
 
 # Gatsby files
 .cache/
