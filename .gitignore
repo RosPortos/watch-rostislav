@@ -89,7 +89,13 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
+assets
+src
+.gitignore
+package.json
+Readme.md
+tsconfig.json
+vite.config.js
 
 # Gatsby files
 .cache/

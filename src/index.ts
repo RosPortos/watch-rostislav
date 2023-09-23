@@ -2,79 +2,135 @@ import {
     ViewerApp,
     AssetManagerPlugin,
     GBufferPlugin,
-    timeout,
     ProgressivePlugin,
     TonemapPlugin,
     SSRPlugin,
     SSAOPlugin,
-    DiamondPlugin,
-    FrameFadePlugin,
-    GLTFAnimationPlugin,
-    GroundPlugin,
+    mobileAndTabletCheck,
     BloomPlugin,
-    TemporalAAPlugin,
-    AnisotropyPlugin,
-    GammaCorrectionPlugin,
-
-    addBasePlugins,
-    ITexture, TweakpaneUiPlugin, AssetManagerBasicPopupPlugin, CanvasSnipperPlugin,
-
-    IViewerPlugin,
-
-    // Color, // Import THREE.js internals
-    // Texture, // Import THREE.js internals
+    DiamondPlugin,
+    Vector3, GammaCorrectionPlugin, MeshBasicMaterial2, Color, AssetImporter, CameraViewPlugin, ScrollableCameraViewPlugin
 } from "webgi";
-import "./styles.css";
 
-async function setupViewer(){
+import "./css/style.min.css";
 
-    // Initialize the viewer
-    const viewer = new ViewerApp({
-        canvas: document.getElementById('webgi-canvas') as HTMLCanvasElement,
-    })
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Lenis from '@studio-freight/lenis'
 
-    // Add some plugins
-    const manager = await viewer.addPlugin(AssetManagerPlugin)
+const lenis = new Lenis({
+    duration: 4,
+    easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), 
+    direction: 'vertical', 
+    gestureDirection: 'vertical', 
+    smooth: true,
+    mouseMultiplier: 1,
+    smoothTouch: false,
+    touchMultiplier: 2,
+    infinite: false,
+} as any)
 
-    // Add a popup(in HTML) with download progress when any asset is downloading.
-    await viewer.addPlugin(AssetManagerBasicPopupPlugin)
+lenis.stop()
 
-    // Add plugins individually.
-    // await viewer.addPlugin(GBufferPlugin)
-    // await viewer.addPlugin(new ProgressivePlugin(32))
-    // await viewer.addPlugin(new TonemapPlugin(!viewer.useRgbm))
-    // await viewer.addPlugin(GammaCorrectionPlugin)
-    // await viewer.addPlugin(SSRPlugin)
-    // await viewer.addPlugin(SSAOPlugin)
-    // await viewer.addPlugin(DiamondPlugin)
-    // await viewer.addPlugin(FrameFadePlugin)
-    // await viewer.addPlugin(GLTFAnimationPlugin)
-    // await viewer.addPlugin(GroundPlugin)
-    // await viewer.addPlugin(BloomPlugin)
-    // await viewer.addPlugin(TemporalAAPlugin)
-    // await viewer.addPlugin(AnisotropyPlugin)
-    // and many more...
-
-    // or use this to add all main ones at once.
-    await addBasePlugins(viewer)
-
-    // Add more plugins not available in base, like CanvasSnipperPlugin which has helpers to download an image of the canvas.
-    await viewer.addPlugin(CanvasSnipperPlugin)
-
-    // This must be called once after all plugins are added.
-    viewer.renderer.refreshPipeline()
-
-    // Import and add a GLB file.
-    await viewer.load("./assets/classic-watch.glb")
-
-    // Load an environment map if not set in the glb file
-    // await viewer.setEnvironmentMap((await manager.importer!.importSinglePath<ITexture>("./assets/environment.hdr"))!);
-
-    // Add some UI for tweak and testing.
-    const uiPlugin = await viewer.addPlugin(TweakpaneUiPlugin)
-    // Add plugins to the UI to see their settings.
-    uiPlugin.setupPlugins<IViewerPlugin>(TonemapPlugin, CanvasSnipperPlugin)
-
+function raf(time: number) {
+    lenis.raf(time)
+    requestAnimationFrame(raf)
 }
 
-setupViewer()
+requestAnimationFrame(raf)
+
+gsap.registerPlugin(ScrollTrigger);
+
+document.addEventListener("DOMContentLoaded", function() {
+
+    async function setupViewer(){
+        const viewer = new ViewerApp({
+            canvas: document.getElementById('webgi-canvas') as HTMLCanvasElement,
+            isAntialiased: true,
+        })
+
+        const manager = await viewer.addPlugin(AssetManagerPlugin)
+        const camera = viewer.scene.activeCamera
+
+        await viewer.addPlugin(GBufferPlugin)
+        await viewer.addPlugin(new ProgressivePlugin(32))
+        await viewer.addPlugin(new TonemapPlugin(true))
+        await viewer.addPlugin(GammaCorrectionPlugin)
+        await viewer.addPlugin(SSRPlugin)
+        await viewer.addPlugin(SSAOPlugin)
+        await viewer.addPlugin(BloomPlugin)
+        await viewer.addPlugin(DiamondPlugin)
+        await viewer.addPlugin(CameraViewPlugin)
+        const scroller = await viewer.addPlugin(ScrollableCameraViewPlugin)
+
+        const camViewPlugin = viewer.getPlugin(CameraViewPlugin)
+
+        let cameraView = (camViewPlugin as any)._cameraViews
+
+        // Loader
+        const importer = manager.importer as AssetImporter
+
+        importer.addEventListener("onProgress", (ev) => {
+            const progressRatio = (ev.loaded / ev.total)
+            document.querySelector('.progress')?.setAttribute('style', `transform: scaleX(${progressRatio})`)
+        })
+
+        importer.addEventListener("onLoad", (ev) => {
+            gsap.to('.loader', {x: '100%', duration: 0.8, ease: 'power4.inOut', delay: 1, onComplete: () =>{
+                lenis.start()
+                /* cameraView[1].position = new Vector3(4.10, -2.02, 4.96)
+                cameraView[1].target = new Vector3(-0.05, -0.07, 0.17) */
+            }})
+        })
+
+        viewer.getPlugin(TonemapPlugin)!.config!.clipBackground = true
+        viewer.scene.activeCamera.setCameraOptions({controlsEnabled: false})
+
+        viewer.renderer.refreshPipeline()
+
+        await viewer.load("./assets/watch.glb")
+        let needsUpdate = true
+
+        onUpdate()
+
+        function onUpdate() {
+            needsUpdate = true
+            viewer.setDirty()
+        }
+
+        viewer.addEventListener('preFrame', () =>{
+            if(needsUpdate){
+                camera.positionTargetUpdated(true)
+                needsUpdate = false
+            }
+        })
+
+        const exploreView = document.querySelector(".explore") as HTMLElement | null;
+        const canvasView = document.getElementById("webgi-canvas") as HTMLElement | null;
+        const canvasContainer = document.getElementById("webgi-canvas-container") as HTMLElement | null;
+        const header = document.querySelector(".header") as HTMLElement | null;
+        const exitContainer = document.querySelector(".exit--container") as HTMLElement | null;
+        const bodyButton = document.querySelector(".button--body") as HTMLElement | null;
+
+        // EXPLORE ALL FEATURES EVENT
+        document.querySelector(".button-explore")?.addEventListener("click", () => {
+            exploreView?.style.setProperty('pointer-events', "none");
+            exitContainer?.style.setProperty('opacity', "100");
+            exitContainer?.style.setProperty('display', "flex");
+            canvasView?.style.setProperty('pointer-events', "all");
+            canvasContainer?.style.setProperty('z-index', "1");
+            header?.style.setProperty('position', "fixed");
+            document.body.style.overflowY = "hidden";
+            document.body.style.cursor = "grab";
+            scroller.enabled = false;
+
+            // Assuming CameraViewPlugin type exists
+            let cameraViews = viewer.getPlugin(CameraViewPlugin);
+            cameraViews?.animateToView(cameraViews.camViews[4] ?? null);
+        });
+
+    }
+
+    setupViewer()
+
+});

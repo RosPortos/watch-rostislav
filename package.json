@@ -30,5 +30,10 @@
       }
     ]
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@studio-freight/lenis": "^1.0.23",
+    "gsap": "^3.12.2",
+    "locomotive-scroll": "^4.1.4"
+  }
 }
