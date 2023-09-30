@@ -13,10 +13,12 @@ import {
 } from "webgi";
 import "./css/style.min.css";
 import gsap from "gsap";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from '@studio-freight/lenis'
 
 gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollToPlugin);
 
 gsap.defaults({
     ease: "power3.inOut",
@@ -24,7 +26,7 @@ gsap.defaults({
 });
 
 const lenis = new Lenis({
-    duration: 4,
+    duration: 3,
     easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), 
     direction: 'vertical', 
     gestureDirection: 'vertical', 
@@ -66,6 +68,9 @@ document.addEventListener("DOMContentLoaded", function() {
         await viewer.addPlugin(CameraViewPlugin)
         const scroller = await viewer.addPlugin(ScrollableCameraViewPlugin)
 
+        let cameraViews = viewer.getPlugin(CameraViewPlugin);
+        let view = (cameraViews as any)._cameraViews;
+
         // Loader
         const importer = manager.importer as AssetImporter
 
@@ -75,7 +80,8 @@ document.addEventListener("DOMContentLoaded", function() {
         })
 
         importer.addEventListener("onLoad", (ev) => {
-            gsap.to('.loader', {x: '100%', duration: 0.8, ease: 'power4.inOut', delay: 1, onComplete: () =>{
+            setTimeout(() => cameraViews?.animateToView(view[0], 2000), 2000)
+            gsap.to('.loader', {x: '100%', duration: 1, ease: 'power4.inOut', delay: 2, onComplete: () =>{
                 lenis.start()
             }})
         })
@@ -90,6 +96,8 @@ document.addEventListener("DOMContentLoaded", function() {
         let needsUpdate = true
 
         onUpdate()
+
+        window.scrollTo(0,0)
 
         function onUpdate() {
             needsUpdate = true
@@ -115,9 +123,6 @@ document.addEventListener("DOMContentLoaded", function() {
         const watchMaterialChrome = manager.materials!.findMaterialsByName('chrome')[0] as MeshBasicMaterial2
         const watchMaterial2 = manager.materials!.findMaterialsByName('meetal.002')[0] as MeshBasicMaterial2
         const watchMaterial3 = manager.materials!.findMaterialsByName('meetal.001')[0] as MeshBasicMaterial2
-
-        let cameraViews = viewer.getPlugin(CameraViewPlugin);
-        let view = (cameraViews as any)._cameraViews;
 
         function changeStyle(style: string, e: any = null) {
             watchMaterialMain.color = new Color(style);
@@ -150,16 +155,16 @@ document.addEventListener("DOMContentLoaded", function() {
             document.body.style.cursor = "grab";
             scroller.enabled = false;
 
-            view[3].position = new Vector3(11.64, 2.98, 0.17)
-            view[3].target = new Vector3(-0.11, -0.00, -0.00)
+            view[3].position.set(11.64, 2.98, 0.17)
+            view[3].target.set(-0.11, -0.00, 0.14)
 
             lenis.stop()
 
+            gsap.to('.header', {y: '-100%'})
             gsap.to('.explore__text', {x: '-100vw'})
             gsap.to('.customize-nav', {right: 0})
-            gsap.to('.explore__btn', {yPercent: 110})
-            gsap.to('.customize-bottom', {opacity: 1, delay: 1})
-            gsap.to('.explore__bottom--text', {opacity: 1, delay: 1.2})
+            gsap.to('.explore__bottom--title', {y: 200})
+            gsap.to('.explore__bottom--text', {opacity: 0.4, delay: 0.5})
 
             cameraViews?.animateToView(view[3]);
         });
@@ -172,20 +177,108 @@ document.addEventListener("DOMContentLoaded", function() {
             canvasContainer.style.zIndex = "unset";
             document.body.style.cursor = "auto";
 
-            view[3].position = new Vector3(7.248, 2.554, -6.159)
-            view[3].target = new Vector3(1.443, -0.376, 1.159)
+            view[3].position.set(5.0893770549, -0.7894485932, -5.4671651834)
+            view[3].target.set(0.9074247289, -0.1751607311, 0.8519001116)
 
             lenis.start()
 
+            gsap.to('.header', {y: '0'})
             gsap.to('.explore__text', {x: '0'})
             gsap.to('.customize-nav', {right: '-100%'})
-            gsap.to('.customize-bottom', {opacity: 0})
+            gsap.to('.explore__bottom--title', {y: 0})
             gsap.to('.explore__bottom--text', {opacity: 0})
-            gsap.to('.explore__btn', {yPercent: 0, delay: 1})
 
             cameraViews?.animateToView(view[3]);
 
             scroller.enabled = true;
+        });
+
+        const slideUp = document.querySelectorAll('.slide-up')
+
+        slideUp.forEach((item) => {
+            let dataY: any = item.getAttribute('data-y')
+            let delay: any = item.getAttribute('data-delay')
+            gsap.fromTo(item, {
+                y: dataY || 30,
+                opacity: 0,
+            },{
+                scrollTrigger: {
+                    trigger: item,
+                    start: "top bottom",
+                    end: "top 90%",
+                },
+                duration: 2,
+                y: 0,
+                opacity: 1,
+                delay: delay || 0,
+            }
+            );
+        })
+
+        gsap.fromTo('.history__list li', {
+                y: 10,
+                opacity: 0,
+            },{
+                scrollTrigger: {
+                    trigger: '.history__list',
+                    start: "top bottom",
+                    end: "top 90%",
+                },
+                y: 0,
+                delay: 0.5,
+                opacity: 1,
+                duration: 2,
+                stagger: 0.2
+            }
+        );
+
+        gsap.to('.history__title', {
+                y: -100,
+                x: '30%',
+                scrollTrigger: {
+                    trigger: '.history__title',
+                    start: "top 150%",
+                    end: "bottom -50%",
+                    scrub: 1,
+                },
+            }
+        );
+
+        const header: any = document.querySelector(".header");
+        let scrolledWindow = scrollY;
+
+        if (scrolledWindow > 10) {
+            header.classList.add('header-scroll');
+        } else {
+            header.classList.remove('header-scroll');
+        }
+
+
+        window.addEventListener('scroll', function () {
+            let scrolled = scrollY;
+
+            if (scrolled > 10) {
+                header.classList.add('header-scroll');
+            } else {
+                header.classList.remove('header-scroll');
+            }
+        });
+
+
+        document.querySelectorAll('a.scroll-to').forEach((anchor: any) => {
+            anchor.addEventListener('click', function (e: any) {
+                e.preventDefault();
+
+                const target = document.querySelector(anchor.getAttribute('href'));
+                const elementPosition = target.offsetTop;
+                const offsetPosition = elementPosition;
+
+                gsap.to(window, {
+                duration: 3, 
+                scrollTo: { y: offsetPosition, autoKill: false },
+                ease: "power2.inOut" 
+                });
+            });
         });
 
     }

@@ -6,151 +6,210 @@
 	<meta charset="UTF-8" />
 	<meta name="viewport"
 		content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		.loader {
+			background: black;
+			color: white;
+			position: fixed;
+			width: 100%;
+			height: 100%;
+			display: flex;
+			justify-content: center;
+			align-content: center;
+			align-items: center;
+			z-index: 2000;
+		}
+
+		.progress {
+			position: absolute;
+			top: 52%;
+			height: 1px;
+			width: 100%;
+			transform: scaleX(0);
+			background-color: white;
+			transition: all 1s ease;
+		}
+	</style>
 </head>
 
 <body>
-	<div id="webgi-canvas-container">
-		<canvas id="webgi-canvas"></canvas>
-	</div>
 
 	<div class="loader">
 		<p>Loading... Please wait</p>
 		<div class="progress"></div>
 	</div>
 
+
+	<div class="promo promo--outside">
+		<div class="container">
+			<h1 class="promo__title">
+				<p class="promo__title--back">
+					<span>Welcome</span>
+					<span>to the</span>
+					<span>World of Rolex</span>
+				</p>
+			</h1>
+		</div>
+	</div>
+
+	<div class="decor-bg"></div>
+
+	<div id="webgi-canvas-container">
+		<canvas id="webgi-canvas"></canvas>
+	</div>
+
 	<div class="customize-nav">
-		<div class="customize-nav__item active"
+		<button class="customize-nav__item active"
 			id="style-silver">
 			<span></span>
 			Silver
-		</div>
-		<div class="customize-nav__item"
+		</button>
+		<button class="customize-nav__item"
 			id="style-gold">
 			<span></span>
 			Gold
-		</div>
+		</button>
+		<button class="explore__btn--exit btn"
+			data-text="Exit">
+			Exit
+		</button>
 	</div>
 
 	<div class="customize-bottom">
 		<div class="explore__bottom--text">
 			Drag to explore the 360-degree view
 		</div>
-		<button class="explore__btn--exit btn">
-			Exit
-		</button>
 	</div>
+
+	<header class="header">
+		<div class="container">
+			<a href="#promo"
+				class="logo scroll-to">
+				<img loading="lazy"
+					src="assets/logo.svg"
+					alt="img">
+			</a>
+			<nav class="nav">
+				<ul>
+					<li><a class="scroll-to"
+							href="#promo">Home</a></li>
+					<li><a class="scroll-to"
+							href="#legacy">Legacy</a></li>
+					<li><a class="scroll-to"
+							href="#history">History</a></li>
+					<li><a class="scroll-to"
+							href="#explore">Explore</a></li>
+				</ul>
+			</nav>
+			<div class="basket"></div>
+		</div>
+	</header>
 
 
 	<div class="page ">
 
-		<header class="header">
+		<section class="promo"
+			id="promo">
 			<div class="container">
-				<div class="logo">
-					<img loading="lazy"
-						src="assets/logo.svg"
-						alt="img">
+				<div class="promo__title">
+					<p class="promo__title--front">
+						<span>Welcome</span>
+						<span>to the</span>
+						<span>World of Rolex</span>
+					</p>
 				</div>
-				<nav class="nav">
-					<ul>
-						<li><a href="#">Home</a></li>
-						<li><a href="#">Legacy</a></li>
-						<li><a href="#">History</a></li>
-						<li><a href="#">3D view</a></li>
-					</ul>
-				</nav>
-				<div class="basket"></div>
-			</div>
-		</header>
-
-		<section class="promo">
-			<div class="container">
-				<h1 class="promo__title">
-					Welcome to <br>
-					the World of Rolex
-				</h1>
-				<div class="promo__descr">
-					Discover the pinnacle <br>
-					of precision and elegance.
-				</div>
-				<button class="promo__btn btn">
-					Learn More
-				</button>
 			</div>
 		</section>
 
-		<section class="legacy">
+		<section class="legacy"
+			id="legacy">
 			<div class="container">
-				<h2 class="legacy__title title">
-					<span>The Impact of Rolex</span>
-					<span>The Impact of Rolex</span>
-				</h2>
 				<div class="legacy__descr">
-					<p>
+					<h2 class="legacy__title slide-up">
+						Discover the pinnacle <br>
+						of precision and elegance.
+					</h2>
+					<p class="slide-up">
 						<b>Rolex</b>, over the years, has redefined the horological industry with its
 						<b>groundbreaking</b>
 						innovations and <b>unparalleled</b>
 						craftsmanship.
 					</p>
-					<p>
+					<p class="slide-up">
 						From introducing the <b>first waterproof</b> wristwatch to pioneering the <b>automatic</b> date
 						changing mechanism, Rolex's
 						contributions to watchmaking are <b>unparalleled.</b>
 					</p>
+					<a href="#history"
+						class="legacy__btn btn slide-up scroll-to"
+						data-text="Learn More">
+						Learn More
+					</a>
 				</div>
 			</div>
 		</section>
 
-		<section class="history">
+		<section class="history"
+			id="history">
 			<div class="container">
-				<h2 class="history__title title">
+				<h2 class="history__title title ">
+					<span>The Legacy Behind the Timepiece</span>
+					<span>The Legacy Behind the Timepiece</span>
 					<span>The Legacy Behind the Timepiece</span>
 				</h2>
 				<div class="history__text">
-					<div class="history__top">
+					<div class="history__top slide-up"
+						data-y="30">
 						Founded in 1905, Rolex's journey from a small watch company to a global luxury icon is filled
 						with milestones and
 						achievements.
 					</div>
 					<ul class="history__list">
 						<li>
-							- <b>1905:</b> Rolex founded.
+							<b>1905</b> Rolex emerges, revolutionizing the concept of time.
 						</li>
 						<li>
-							- <b>1945:</b> Launch of the Datejust, the first automatic date wristwatch.
+							<b>1926</b> Datejust debuts, setting a new standard for wristwatches.
 						</li>
 						<li>
-							- <b>1926:</b> Introduction of the first waterproof wristwatch
+							<b>1945</b> Rolex unveils the first-ever waterproof wristwatch.
 						</li>
 					</ul>
 				</div>
 			</div>
 		</section>
 
-		<section class="explore">
+		<section class="explore"
+			id="explore">
 			<div class="container">
 				<div class="explore__text">
-					<h2 class="explore__title">
+					<h2 class="explore__title slide-up">
 						Explore in 3D
 					</h2>
 					<div class="explore__descr">
-						<p>
+						<p class="slide-up">
 							Experience the <b>Rolex</b> watch like never before. Dive into our interactive <b>3D
 								model</b> and explore every intricate
 							detail.
 						</p>
-						<p>
+						<p class="slide-up">
 							Use your <b>mouse</b> or <b>touch</b> gestures to rotate, zoom, and explore the watch in a
 							<b>3D space</b>. Discover the craftsmanship
 							and precision that goes into every <b>Rolex</b> timepiece.
 						</p>
 					</div>
+					<button class="explore__btn btn slide-up"
+						data-text="Customize">
+						Customize
+					</button>
 				</div>
 			</div>
-			<div class="explore__bottom">
-				<button class="explore__btn btn">
-					Customize
-				</button>
-			</div>
+			<h2 class="explore__bottom--title title">
+				<span>The Impact of Rolex</span>
+				<span>The Impact of Rolex</span>
+				<span>The Impact of Rolex</span>
+				<span>The Impact of Rolex</span>
+			</h2>
 		</section>
 
 	</div>
